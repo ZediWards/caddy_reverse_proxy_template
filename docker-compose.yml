@@ -1,0 +1,44 @@
+services:
+  caddytemplate:
+    container_name: caddy_container
+    image: caddy:2.8.4-alpine
+    # build:
+    #   context: .
+    #   dockerfile: ./Dockerfile
+    restart: unless-stopped
+    # using own local ssl certs
+    secrets:
+      - cert_key
+      - cert_cert    
+    # added by me to be able to reach via localhost
+    # environment:
+      # - HOST=0.0.0.0
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./site:/srv
+      # - ./dist:srv  # for serving static SPA from astro build... still needs tweeks though
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - caddy_network
+
+# network needs to be manually created FIRST if other services which have their own compose files will use too
+# docker network create caddy_network
+networks:
+  caddy_network:
+    external: true
+    driver: bridge
+
+secrets:
+  cert_key:
+    file: ./private/cert-key.pem
+  cert_cert:
+    file: ./private/cert.pem
+
+volumes:
+  caddy_data:
+  caddy_config:

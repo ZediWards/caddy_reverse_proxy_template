@@ -1,0 +1,5 @@
+localhost {
+    reverse_proxy astrotemplate2024:4321
+
+    tls /run/secrets/cert_cert /run/secrets/cert_key
+}
